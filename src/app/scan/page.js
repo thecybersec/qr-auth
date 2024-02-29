@@ -23,6 +23,7 @@ const ScanPage = () => {
         delay={300}
         onError={handleError}
         onScan={handleScan}
+        facingMode={"environment"}
         style={{ width: "100%" }}
       />
       <p>Scanned Data: {scannedData}</p>
