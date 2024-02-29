@@ -1,27 +1,31 @@
 "use client";
-import { useState } from "react";
-import QRCode from "qrcode.react";
+import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
 const QRPage = () => {
   const [sessionId, setSessionId] = useState("");
 
-  const generateSessionId = () => {
-    const uuid = uuidv4();
-    setSessionId(uuid);
-  };
+  useEffect(() => {
+    // Generate a UUID session ID
+    const generateSessionId = () => {
+      const id = uuidv4();
+      setSessionId(id);
+    };
+
+    generateSessionId();
+  }, []);
 
   return (
     <div>
       <h1>QR Code Generator</h1>
-      <button onClick={generateSessionId}>Generate Session ID</button>
-      <p>Session ID: {sessionId}</p>
-      {sessionId && (
-        <div>
-          <h2>QR Code</h2>
-          <QRCode value={sessionId} />
-        </div>
-      )}
+      <h2>Session ID: {sessionId}</h2>
+      <div style={{ width: "300px", margin: "auto" }}>
+        {/* QR Code Generator */}
+        <img
+          src={`https://api.qrserver.com/v1/create-qr-code/?data=${sessionId}&size=200x200`}
+          alt="QR Code"
+        />
+      </div>
     </div>
   );
 };
