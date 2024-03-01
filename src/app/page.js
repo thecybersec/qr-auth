@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 
 const QRPage = () => {
   const [sessionId, setSessionId] = useState("");
-  const [showReload, setShowReload] = useState(true);
+  const [showReload, setShowReload] = useState(false);
 
   useEffect(() => {
     const generateSessionId = () => {
