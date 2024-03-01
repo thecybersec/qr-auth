@@ -1,10 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
+import io from "socket.io-client"; // Importing socket.io-client library
 
 const QRPage = () => {
   const [sessionId, setSessionId] = useState("");
   const [showReload, setShowReload] = useState(true);
+  const [sessionIdExists, setSessionIdExists] = useState(false);
 
   useEffect(() => {
     const generateSessionId = () => {
@@ -14,11 +16,22 @@ const QRPage = () => {
 
     generateSessionId();
 
-    const timeout = setTimeout(() => {
-      setShowReload(true);
-    }, 60000);
+    // Establish WebSocket connection using socket.io-client
+    const socket = io("wss://cms.forexblues.com"); // Adjust URL accordingly
 
-    return () => clearTimeout(timeout);
+    // Listen for messages
+    socket.on("message", (message) => {
+      if (message === "SESSION_ID_EXISTS") {
+        setSessionIdExists(true);
+      } else {
+        setSessionIdExists(false);
+      }
+    });
+
+    // Cleanup
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const reloadQRCode = () => {
@@ -38,32 +51,18 @@ const QRPage = () => {
         />
         {/* Blur overlay */}
         {showReload && (
-          <div
-            className="absolute top-0 left-[-50px] cursor-pointer w-full h-full bg-white bg-opacity-70 backdrop-blur-sm flex justify-center items-center"
-            onClick={reloadQRCode}
-          >
+          <div className="absolute top-0 left-[-50px] w-full h-full bg-white bg-opacity-70 backdrop-blur-sm flex justify-center items-center">
             <div className="bg-[#319688] rounded-full w-40 h-40 flex items-center p-5 text-white text-sm">
               <div className="text-center">
-                <div className="text-2xl mb-2 flex justify-center">
-                  <svg
-                    stroke="currentColor"
-                    fill="none"
-                    stroke-width="2"
-                    viewBox="0 0 24 24"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    height="2em"
-                    width="2em"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747"></path>
-                    <path d="M20 4v5h-5"></path>
-                  </svg>
-                </div>
-                <span className="uppercase text-xs">
+                <div className="text-2xl mb-2">↻</div>
+                <span onClick={reloadQRCode} className="cursor-pointer">
                   Click to reload QR code
                 </span>
+                {sessionIdExists && (
+                  <span className="block mt-2 text-red-500">
+                    Session ID already exists
+                  </span>
+                )}
               </div>
             </div>
           </div>
