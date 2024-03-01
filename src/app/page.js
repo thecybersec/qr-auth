@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 const QRPage = () => {
   const [sessionId, setSessionId] = useState("");
   const [showReload, setShowReload] = useState(false);
+  const [hitApi, setHitApi] = useState(true); // State to control hitting API
 
   useEffect(() => {
     const generateSessionId = () => {
@@ -16,14 +17,33 @@ const QRPage = () => {
 
     const timeout = setTimeout(() => {
       setShowReload(true);
+      setHitApi(false); // Stop hitting API after 1 minute
     }, 60000);
 
     return () => clearTimeout(timeout);
   }, []);
 
+  useEffect(() => {
+    let interval;
+    if (hitApi) {
+      // Hit API every 10 seconds if hitApi is true
+      interval = setInterval(() => {
+        console.log("hit api");
+      }, 10000);
+    }
+
+    return () => clearInterval(interval);
+  }, [hitApi]);
+
   const reloadQRCode = () => {
     setSessionId(uuidv4());
     setShowReload(false);
+    setHitApi(true); // Start hitting API again when QR code is reloaded
+  };
+
+  const generateSessionId = () => {
+    const id = uuidv4();
+    setSessionId(id);
   };
 
   return (
@@ -48,10 +68,10 @@ const QRPage = () => {
                   <svg
                     stroke="currentColor"
                     fill="none"
-                    stroke-width="2"
+                    strokeWidth="2"
                     viewBox="0 0 24 24"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                     height="2em"
                     width="2em"
                     xmlns="http://www.w3.org/2000/svg"
